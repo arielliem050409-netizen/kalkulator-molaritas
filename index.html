@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kalkulator molaritas Sma Mardi yuana</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #ff2626 0%, #ffce8d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .calculator-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .calculation-type {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .calc-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ffe49a;
+            background: #ffe49a;
+            color: #ff2626;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .calc-btn:hover {
+            background: #f0f4ff;
+        }
+        
+        .calc-btn.active {
+            background: #ff2626;
+            color: #ffe49a;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ff2626;
+        }
+        
+        .unit {
+            color: #666;
+            margin-left: 5px;
+            font-size: 14px;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff2626 0%, #ffe49a 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .result h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ff2626;
+            margin: 10px 0;
+        }
+        
+        .result-unit {
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .formula {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+            border-left: 4px solid #ff2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>kalkulator molaritas Kelompok 1</h1>
+        
+        <div class="calculation-type">
+            <button class="calc-btn active" onclick="setCalculationType('molarity')">kalkulator molaritas</button>
+            <button class="calc-btn" onclick="setCalculationType('mass')">kalkulator massa</button>
+            <button class="calc-btn" onclick="setCalculationType('volume')">kalkulator Volume</button>
+        </div>
+        
+        <form id="molarityForm">
+            <div class="input-group">
+                <label for="mass">massa zat terlarut <span class="unit">(g)</span></label>
+                <input type="number" id="mass" step="any" placeholder="Enter mass in grams" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="molarMass">Massa molar <span class="unit">(g/mol)</span></label>
+                <input type="number" id="molarMass" step="any" placeholder="Enter molar mass" required>
+            </div>
+            
+            <div class="input-group" id="volumeGroup">
+                <label for="volume">Volume larutan <span class="unit">(L)</span></label>
+                <input type="number" id="volume" step="any" placeholder="Enter volume in liters" required>
+            </div>
+            
+            <div class="input-group" id="molarityGroup" style="display: none;">
+                <label for="molarity">molaritas yang diinginkan <span class="unit">(mol/L)</span></label>
+                <input type="number" id="molarity" step="any" placeholder="Enter desired molarity">
+            </div>
+            
+            <button type="button" class="calculate-btn" onclick="calculate()">Calculate</button>
+        </form>
+        
+        <div class="result" id="result">
+            <h3>Result:</h3>
+            <div class="result-value" id="resultValue">0.000</div>
+            <div class="result-unit" id="resultUnit">mol/L</div>
+            <div class="formula" id="formulaDisplay">
+                Molarity (M) = mass (g) / (molar mass (g/mol) × volume (L))
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentType = 'molarity';
+        
+        function setCalculationType(type) {
+            currentType = type;
+            
+            // Update button states
+            document.querySelectorAll('.calc-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Show/hide appropriate inputs
+            const volumeGroup = document.getElementById('volumeGroup');
+            const molarityGroup = document.getElementById('molarityGroup');
+            
+            if (type === 'molarity') {
+                volumeGroup.style.display = 'block';
+                molarityGroup.style.display = 'none';
+                document.getElementById('volume').required = true;
+                document.getElementById('molarity').required = false;
+                document.getElementById('formulaDisplay').innerHTML = 
+                    'Molarity (M) = mass (g) / (molar mass (g/mol) × volume (L))';
+            } else if (type === 'mass') {
+                volumeGroup.style.display = 'block';
+                molarityGroup.style.display = 'block';
+                document.getElementById('volume').required = true;
+                document.getElementById('molarity').required = true;
+                document.getElementById('formulaDisplay').innerHTML = 
+                    'Mass (g) = molarity (mol/L) × molar mass (g/mol) × volume (L)';
+            } else if (type === 'volume') {
+                volumeGroup.style.display = 'none';
+                molarityGroup.style.display = 'block';
+                document.getElementById('volume').required = false;
+                document.getElementById('molarity').required = true;
+                document.getElementById('formulaDisplay').innerHTML = 
+                    'Volume (L) = mass (g) / (molar mass (g/mol) × molarity (mol/L))';
+            }
+        }
+        
+        function calculate() {
+            const mass = parseFloat(document.getElementById('mass').value);
+            const molarMass = parseFloat(document.getElementById('molarMass').value);
+            
+            if (!mass || !molarMass || molarMass <= 0) {
+                alert('Please enter valid values for mass and molar mass (must be positive)');
+                return;
+            }
+            
+            let result, unit, resultValue;
+            
+            try {
+                switch(currentType) {
+                    case 'molarity':
+                        const volume = parseFloat(document.getElementById('volume').value);
+                        if (!volume || volume <= 0) {
+                            alert('Please enter a valid volume (must be positive)');
+                            return;
+                        }
+                        result = mass / (molarMass * volume);
+                        unit = 'mol/L';
+                        resultValue = result.toFixed(4);
+                        break;
+                        
+                    case 'mass':
+                        const molarity = parseFloat(document.getElementById('molarity').value);
+                        const desiredVolume = parseFloat(document.getElementById('volume').value);
+                        if (!molarity || molarity <= 0 || !desiredVolume || desiredVolume <= 0) {
+                            alert('Please enter valid values for molarity and volume (must be positive)');
+                            return;
+                        }
+                        result = molarity * molarMass * desiredVolume;
+                        unit = 'g';
+                        resultValue = result.toFixed(4);
+                        break;
+                        
+                    case 'volume':
+                        const targetMolarity = parseFloat(document.getElementById('molarity').value);
+                        if (!targetMolarity || targetMolarity <= 0) {
+                            alert('Please enter a valid molarity (must be positive)');
+                            return;
+                        }
+                        result = mass / (molarMass * targetMolarity);
+                        unit = 'L';
+                        resultValue = result.toFixed(4);
+                        break;
+                }
+                
+                // Display result
+                document.getElementById('resultValue').textContent = resultValue;
+                document.getElementById('resultUnit').textContent = unit;
+                document.getElementById('result').style.display = 'block';
+                
+            } catch (error) {
+                alert('Error in calculation: ' + error.message);
+            }
+        }
+        
+        // Add keyboard support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculate();
+            }
+        });
+    </script>
+</body>
+</html>
